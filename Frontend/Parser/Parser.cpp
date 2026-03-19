@@ -275,7 +275,7 @@ std::expected<DeleteStatement*, ParseError> Parser::parseDelete()
     return std::unexpected(ParseError::MissingKeyword);
 }
 
-DropStatement *Parser::parseDrop()
+std::expected<DropStatement*, ParseError> Parser::parseDrop()
 {
     if (expectToken(TokenType::KEYWORD, "DROP"))
     {
@@ -283,19 +283,19 @@ DropStatement *Parser::parseDrop()
         {
             std::string table = expectToken(TokenType::IDENTIFIER);
             if (table == "")
-                return nullptr;
+                return std::unexpected(ParseError::InvalidIdentifier);
             else
             {
                 if (currentToken().type == TokenType::END_OF_FILE)
                     return new DropStatement(table);
-                return nullptr;
+                return std::unexpected(ParseError::ExtraTokens);
             }
         }
         else
-            return nullptr;
+            return std::unexpected(ParseError::MissingKeyword);
     }
     else
-        return nullptr;
+        return std::unexpected(ParseError::MissingKeyword);
 }
 
 UpdateStatement *Parser::parseUpdate()
