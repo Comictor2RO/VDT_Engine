@@ -7,6 +7,7 @@
 #include "../AST/Row/Row.hpp"
 #include "../Catalog/Catalog.hpp"
 #include "../Engine/Engine.hpp"
+#include "Colors.hpp"
 
 class GUI {
     public:
@@ -22,6 +23,10 @@ class GUI {
         Catalog &catalog;
         Engine &engine;
 
+        Font regular;
+        Font bold;
+        Font italic;
+        Font semibold;
         void handleInput();
         void executeQuery();
         void drawInputPanel();

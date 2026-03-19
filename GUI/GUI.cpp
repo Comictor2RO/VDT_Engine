@@ -8,8 +8,13 @@ GUI::GUI(Catalog &catalog, Engine &engine)
 
 void GUI::run()
 {
-    InitWindow(1280, 720, "Database Engine");
+    InitWindow(1280, 720, "VDT ENGINE");
     SetTargetFPS(60);
+    regular = LoadFont("resources/asap-condensed/AsapCondensed-Regular.ttf");
+    bold = LoadFont("resources/asap-condensed/AsapCondensed-Bold.ttf");
+    italic = LoadFont("resources/asap-condensed/AsapCondensed-Italic.ttf");
+    semibold = LoadFont("resources/asap-condensed/AsapCondensed-SemiBold.ttf");
+
     while (!WindowShouldClose())
     {
         handleInput();
@@ -20,6 +25,9 @@ void GUI::run()
         drawLogPanel();
         EndDrawing();
     }
+    UnloadFont(regular);
+    UnloadFont(bold);
+    UnloadFont(italic);
     CloseWindow();
 }
 
@@ -94,25 +102,32 @@ void GUI::executeQuery()
 void GUI::drawInputPanel()
 {
     int width = GetRenderWidth();
-    DrawRectangle(0, 0, width, 80, isDark ? DARKGRAY : LIGHTGRAY);
+    DrawRectangle(0, 0, width, 80, isDark ? BG_DARK : BG_LIGHT);
 
     Rectangle inputBox = {10, 20, 1100, 40};
-    DrawRectangleRec(inputBox, isDark ? BLACK : WHITE);
-    DrawRectangleLinesEx(inputBox, 1, isDark ? WHITE : DARKGRAY);
-    DrawText(input.c_str(), 18, 30, 20, isDark ? WHITE : BLACK);
+    DrawRectangleRec(inputBox, isDark ? INPUT_DARK : INPUT_LIGHT);
+    DrawRectangleLinesEx(inputBox, 1, isDark ? INPUT_BORDER_DARK : INPUT_BORDER_LIGHT);
+    DrawTextEx(semibold, input.c_str(), Vector2 {20, 28}, 23 , 1, isDark ? INPUT_TEXT_DARK : INPUT_TEXT_LIGHT);
 
     bool showCursor = (int)(GetTime() * 2) % 2 == 0;
     if (showCursor)
     {
         std::string leftPart = input.substr(0, cursorPos);
-        int cursorX = 18 + MeasureText(leftPart.c_str(), 20);
-        DrawText("|", cursorX, 30, 20, GRAY);
+        int cursorX = 20 + (int)MeasureTextEx(regular, leftPart.c_str(), 23, 1).x;
+        DrawTextEx(semibold, "|", Vector2{(float)cursorX, 28}, 23, 2, isDark ? INPUT_TEXT_DARK : INPUT_TEXT_LIGHT);
     }
 
     Rectangle runBtn = {1120, 20, 140, 40};
     bool hover = CheckCollisionPointRec(GetMousePosition(), runBtn);
-    DrawRectangleRec(runBtn, hover ? GREEN : LIME);
-    DrawText("RUN", 1170, 30, 20, BLACK);
+    if (isDark)
+        DrawRectangleRec(runBtn, hover ? BTN_BG_HOVER_DARK : BTN_BG_DARK);
+    else
+        DrawRectangleRec(runBtn, hover ? BTN_BG_HOVER_LIGHT : BTN_BG_LIGHT);
+    DrawRectangleLinesEx(runBtn, 1, isDark ? BTN_BORDER_LIGHT : BTN_BORDER_DARK);
+    if (isDark)
+        DrawTextEx(bold, "RUN", Vector2{1170, 30}, 20, 5, hover ? BTN_TEXT_HOVER_DARK : BTN_TEXT_DARK);
+    else
+        DrawTextEx(bold, "RUN", Vector2{1170, 30}, 20, 5, hover ? BTN_TEXT_HOVER_LIGHT : BTN_TEXT_LIGHT);
 
     if (hover && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !input.empty())
         executeQuery();
@@ -128,12 +143,12 @@ void GUI::drawResultsPanel()
 
     DrawRectangle(0, 80, 1280, 440, bg);
     DrawRectangle(0, 80, 1280, 28, header);
-    DrawText("RESULTS", 10, 88, 16, isDark ? LIGHTGRAY : DARKGRAY);
-    DrawText(("Total rows: " + std::to_string(results.size())).c_str(), 120, 88, 16, isDark ? LIGHTGRAY : DARKGRAY);
+    DrawTextEx(bold, "RESULTS", Vector2{10, 83}, 22, 2, isDark ? TEXT_DARK : DARKGRAY);
+    DrawTextEx(italic, ("Total rows: " + std::to_string(results.size())).c_str(), Vector2{120, 83}, 22, 2, isDark ? TEXT_DARK : DARKGRAY);
 
     if (results.empty())
     {
-        DrawText("No results to display.", 10, 120, 18, GRAY);
+        DrawTextEx(regular, "No results to display.", Vector2{10, 120}, 18, 2, GRAY);
         return;
     }
 
@@ -152,7 +167,7 @@ void GUI::drawResultsPanel()
             if (j > 0) rowStr += "   |   ";
             rowStr += results[i].values[j];
         }
-        DrawText(rowStr.c_str(), 10, y + 4, 18, text);
+        DrawTextEx(regular, rowStr.c_str(), Vector2{10, (float)y + 4}, 18, 2, text);
     }
 }
 
@@ -162,14 +177,14 @@ void GUI::drawLogPanel()
     Color header = isDark ? DARKGRAY : GRAY;
 
     DrawRectangle(0, 520, 1280, 200, bg);
-    DrawRectangle(0, 520, 1280, 25, header);
-    DrawText("LOG", 10, 527, 15, isDark ? WHITE : BLACK);
+    DrawRectangle(0, 520, 1280, 30, header);
+    DrawTextEx(bold, "LOG", Vector2{10, 524}, 22, 2, isDark ? WHITE : BLACK);
 
     // Buton toggle dark/light mode
-    Rectangle toggleBtn = {1190, 523, 80, 19};
+    Rectangle toggleBtn = {1190, 524, 80, 23};
     bool hover = CheckCollisionPointRec(GetMousePosition(), toggleBtn);
     DrawRectangleRec(toggleBtn, hover ? SKYBLUE : BLUE);
-    DrawText(isDark ? "LIGHT" : "DARK", 1200, 527, 14, WHITE);
+    DrawTextEx(bold, isDark ? "LIGHT" : "DARK", Vector2{1200, 527}, 18, 2, WHITE);
     if (hover && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         isDark = !isDark;
 
@@ -182,6 +197,6 @@ void GUI::drawLogPanel()
         int y = 550 + (i - startIdx) * lineHeight;
         bool isError = logs[i].find("ERROR") != std::string::npos;
         Color c = isError ? RED : (isDark ? GREEN : DARKGREEN);
-        DrawText(logs[i].c_str(), 10, y, 15, c);
+        DrawTextEx(bold, logs[i].c_str(), Vector2{10, (float)y}, 20, 2, c);
     }
 }

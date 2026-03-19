@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(Mini_Database_Engine)
+project(VDT_Engine)
 
 set(CMAKE_CXX_STANDARD 23)
 # Executabilul in bin/ - uneori Windows nu blocheaza cai noi
@@ -17,7 +17,7 @@ include_directories(frontend/Lexer)
 include_directories(AST/SelectStatement)
 include_directories(AST/Statement)
 
-add_executable(Mini_Database_Engine
+add_executable(VDT_Engine
         AST/Condition/Condition.hpp
         AST/DeleteStatement/DeleteStatement.cpp
         AST/DeleteStatement/DeleteStatement.hpp
@@ -63,8 +63,11 @@ add_executable(Mini_Database_Engine
         AST/DropStatement/DropStatement.hpp
         AST/UpdateStatement/UpdateStatement.cpp
         AST/UpdateStatement/UpdateStatement.hpp
+        main.cpp
+        AST/DropStatement/DropStatement.cpp
+        GUI/Colors.hpp
 )
 
 # Legare statică a runtime C++/GCC - .exe nu mai are nevoie de libstdc++-6.dll / libgcc_s
-target_link_options(Mini_Database_Engine PRIVATE -static-libgcc -static-libstdc++)
-target_link_libraries(Mini_Database_Engine PRIVATE raylib opengl32 gdi32 winmm)
+target_link_options(VDT_Engine PRIVATE -static-libgcc -static-libstdc++)
+target_link_libraries(VDT_Engine PRIVATE raylib opengl32 gdi32 winmm)
