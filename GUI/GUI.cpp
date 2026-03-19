@@ -123,7 +123,7 @@ void GUI::drawInputPanel()
         DrawRectangleRec(runBtn, hover ? BTN_BG_HOVER_DARK : BTN_BG_DARK);
     else
         DrawRectangleRec(runBtn, hover ? BTN_BG_HOVER_LIGHT : BTN_BG_LIGHT);
-    DrawRectangleLinesEx(runBtn, 1, isDark ? BTN_BORDER_LIGHT : BTN_BORDER_DARK);
+    DrawRectangleLinesEx(runBtn, 1, isDark ? (hover ? BTN_TEXT_HOVER_DARK : BTN_BORDER_LIGHT) : (hover ? BTN_TEXT_HOVER_LIGHT : BTN_BORDER_DARK));
     if (isDark)
         DrawTextEx(bold, "RUN", Vector2{1170, 30}, 20, 5, hover ? BTN_TEXT_HOVER_DARK : BTN_TEXT_DARK);
     else
@@ -135,20 +135,21 @@ void GUI::drawInputPanel()
 
 void GUI::drawResultsPanel()
 {
-    Color bg     = isDark ? Color{30, 30, 30, 255}  : Color{245, 245, 245, 255};
-    Color header = isDark ? Color{50, 50, 50, 255}  : Color{200, 200, 200, 255};
-    Color even   = isDark ? Color{40, 40, 40, 255}  : Color{255, 255, 255, 255};
-    Color odd    = isDark ? Color{55, 55, 55, 255}  : Color{230, 230, 230, 255};
-    Color text   = isDark ? WHITE : BLACK;
+    Color bg     = isDark ? BG_DARK  : BG_LIGHT;
+    Color header = isDark ? HEADER_BG_DARK  : HEADER_BG_LIGHT;
+    Color even   = isDark ? EVEN_DARK  : EVEN_LIGHT;
+    Color odd    = isDark ? ODD_DARK  : ODD_LIGHT;
+    Color text   = isDark ? ROW_TEXT_DARK : ROW_TEXT_LIGHT;
+    Color cell   = isDark ? CELL_DARK : CELL_LIGHT;
 
     DrawRectangle(0, 80, 1280, 440, bg);
     DrawRectangle(0, 80, 1280, 28, header);
-    DrawTextEx(bold, "RESULTS", Vector2{10, 83}, 22, 2, isDark ? TEXT_DARK : DARKGRAY);
-    DrawTextEx(italic, ("Total rows: " + std::to_string(results.size())).c_str(), Vector2{120, 83}, 22, 2, isDark ? TEXT_DARK : DARKGRAY);
+    DrawTextEx(bold, "RESULTS", Vector2{10, 83}, 22, 2, isDark ? HEADER_TEXT_DARK : HEADER_TEXT_LIGHT);
+    DrawTextEx(italic, ("Total rows: " + std::to_string(results.size())).c_str(), Vector2{120, 83}, 22, 2, isDark ? HEADER_TEXT_DARK : HEADER_TEXT_LIGHT);
 
     if (results.empty())
     {
-        DrawTextEx(regular, "No results to display.", Vector2{10, 120}, 18, 2, GRAY);
+        DrawTextEx(regular, "No results to display.", Vector2{10, 120}, 18, 2, text);
         return;
     }
 
@@ -160,7 +161,7 @@ void GUI::drawResultsPanel()
     {
         int y = startY + i * rowHeight;
         DrawRectangle(0, y, 1280, rowHeight, i % 2 == 0 ? even : odd);
-
+        DrawRectangleLinesEx(Rectangle{0, (float)y, 1280, (float)rowHeight}, 1, cell);
         std::string rowStr;
         for (int j = 0; j < (int)results[i].values.size(); j++)
         {
@@ -173,18 +174,21 @@ void GUI::drawResultsPanel()
 
 void GUI::drawLogPanel()
 {
-    Color bg     = isDark ? Color{20, 20, 20, 255} : Color{210, 210, 210, 255};
-    Color header = isDark ? DARKGRAY : GRAY;
+    Color bg     = isDark ? BG_DARK : BG_LIGHT;
+    Color header = isDark ? HEADER_BG_DARK : HEADER_BG_LIGHT;
 
     DrawRectangle(0, 520, 1280, 200, bg);
     DrawRectangle(0, 520, 1280, 30, header);
-    DrawTextEx(bold, "LOG", Vector2{10, 524}, 22, 2, isDark ? WHITE : BLACK);
+    DrawTextEx(bold, "LOG", Vector2{10, 524}, 22, 2, isDark ? HEADER_TEXT_DARK : HEADER_TEXT_LIGHT);
 
     // Buton toggle dark/light mode
     Rectangle toggleBtn = {1190, 524, 80, 23};
     bool hover = CheckCollisionPointRec(GetMousePosition(), toggleBtn);
-    DrawRectangleRec(toggleBtn, hover ? SKYBLUE : BLUE);
-    DrawTextEx(bold, isDark ? "LIGHT" : "DARK", Vector2{1200, 527}, 18, 2, WHITE);
+    if (isDark)
+        DrawRectangleRec(toggleBtn, hover ? MODE_BTN_HOVER_DARK : MODE_BTN_DARK);
+    else
+        DrawRectangleRec(toggleBtn, hover ? MODE_BTN_HOVER_LIGHT : MODE_BTN_LIGHT);
+    DrawTextEx(bold, isDark ? "LIGHT" : "DARK", Vector2{1200, 527}, 18, 2, isDark ? MODE_BTN_TEXT_DARK : MODE_BTN_TEXT_LIGHT);
     if (hover && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         isDark = !isDark;
 
@@ -196,7 +200,7 @@ void GUI::drawLogPanel()
     {
         int y = 550 + (i - startIdx) * lineHeight;
         bool isError = logs[i].find("ERROR") != std::string::npos;
-        Color c = isError ? RED : (isDark ? GREEN : DARKGREEN);
+        Color c = isError ? (isDark ? ERROR_DARK : ERROR_LIGHT) : (isDark ? SUCCESS_DARK : SUCCESS_LIGHT);
         DrawTextEx(bold, logs[i].c_str(), Vector2{10, (float)y}, 20, 2, c);
     }
 }
