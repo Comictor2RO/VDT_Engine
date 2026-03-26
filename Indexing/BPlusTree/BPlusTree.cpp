@@ -141,18 +141,18 @@ BPlusNode* BPlusTree::findLeaf(int key)
     return current;
 }
 
-IndexRecord *BPlusTree::search(int key)
+std::optional<IndexRecord> BPlusTree::search(int key)
 {
     BPlusNode* leaf = findLeaf(key);
     if (leaf == nullptr)
-        return nullptr;
+        return std::nullopt;
 
     for (int i = 0; i < (int)leaf->records.size(); i++)
     {
         if (leaf->records[i].key == key)
-            return &leaf->records[i];
+            return leaf->records[i];
     }
-    return nullptr;
+    return std::nullopt;
 }
 
 void BPlusTree::insert(int key, int pageId, int offset)

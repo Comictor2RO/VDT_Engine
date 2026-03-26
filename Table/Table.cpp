@@ -141,12 +141,12 @@ std::vector<Row> Table::selectRow(Condition *cond)
         try
         {
             int key = std::stoi(cond->value);
-            IndexRecord *record = index.search(key);
-            if (record != nullptr)
+            auto record = index.search(key);
+            if (record.has_value())
             {
-                Page page = pageManager.readPage(record->pageId);
+                Page page = pageManager.readPage(record.value().pageId);
                 std::vector<std::string> pageRows = page.getRows();
-                int localIndex = record->offset;
+                int localIndex = record.value().offset;
                 if (localIndex >= 0 && localIndex < (int)pageRows.size())
                 {
                     Row row;
@@ -155,7 +155,7 @@ std::vector<Row> Table::selectRow(Condition *cond)
                 }
                 else
                 {
-                    throw std::runtime_error("Index record corrupted: row " + std::to_string(localIndex) + " not found in page " + std::to_string(record->pageId));
+                    throw std::runtime_error("Index record corrupted: row " + std::to_string(localIndex) + " not found in page " + std::to_string(record.value().pageId));
                 }
             }
             return {};
