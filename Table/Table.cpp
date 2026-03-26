@@ -1,7 +1,6 @@
 #include "Table.hpp"
 
 #include <algorithm>
-#include <bits/locale_facets_nonio.h>
 
 int Table::getColumnIndex(const std::string &columnName) const
 {

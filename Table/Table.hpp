@@ -1,7 +1,7 @@
 #ifndef TABLE_HPP
 #define TABLE_HPP
 
-#include "Condition.hpp"
+#include "../AST/Condition/Condition.hpp"
 #include "../Storage/PageManager/PageManager.hpp"
 #include "../AST/Columns/Columns.hpp"
 #include "../AST/Row/Row.hpp"

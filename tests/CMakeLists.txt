@@ -13,17 +13,33 @@ set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)  # Doar GTest
 FetchContent_MakeAvailable(googletest)
 
 add_executable(tests test_lexer.cpp
+        ../Indexing/BPlusTree/BPlusTree.cpp
+        ../Storage/LRUCache/LRUCache.cpp
+        ../Storage/Page/Page.cpp
         ../Frontend/Lexer/Lexer.cpp
         ../Frontend/Parser/Parser.cpp
+        ../Table/Table.cpp
+        ../Storage/PageManager/PageManager.cpp
         ../AST/DeleteStatement/DeleteStatement.cpp
         ../AST/CreateStatement/CreateStatement.cpp
         ../AST/SelectStatement/SelectStatement.cpp
         ../AST/UpdateStatement/UpdateStatement.cpp
         ../AST/InsertStatement/InsertStatement.cpp
         ../AST/DropStatement/DropStatement.cpp
-        test_parser.cpp)
+        ../AST/Columns/Columns.hpp
+
+        test_parser.cpp
+        test_table.cpp)
+
 target_include_directories(tests PRIVATE ../Frontend/Lexer)
-target_link_libraries(tests gtest gtest_main pthread)  # Simplu!
+
+# Link GTest și threading
+if(WIN32)
+    target_link_libraries(tests gtest gtest_main)
+    target_link_options(tests PRIVATE -static-libgcc -static-libstdc++)
+else()
+    target_link_libraries(tests gtest gtest_main pthread)
+endif()
 
 include(GoogleTest)
 gtest_discover_tests(tests)
