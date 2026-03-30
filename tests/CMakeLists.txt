@@ -35,7 +35,8 @@ add_executable(tests test_lexer.cpp
         test_catalog.cpp
         test_bplustree.cpp
         test_cache.cpp
-        test_wal.cpp)
+        test_wal.cpp
+        test_engine.cpp)
 
 target_include_directories(tests PRIVATE ../Frontend/Lexer)
 

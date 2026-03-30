@@ -31,6 +31,7 @@ protected:
     }
 };
 
+//Test 1: logInsert writes a correctly formatted uncommitted entry to the WAL file
 TEST_F(WALManagerTest, LogInsertCreatesEntry) {
     WALManager wal(testWalFile);
     wal.logInsert("users", "1|Alice|25");
@@ -40,6 +41,7 @@ TEST_F(WALManagerTest, LogInsertCreatesEntry) {
     EXPECT_EQ(lines[0], "INSERT|users|1|Alice|25|0");
 }
 
+//Test 2: commit marks the last WAL entry as committed
 TEST_F(WALManagerTest, CommitUpdatesEntry) {
     WALManager wal(testWalFile);
     wal.logInsert("users", "1|Alice|25");
@@ -50,6 +52,7 @@ TEST_F(WALManagerTest, CommitUpdatesEntry) {
     EXPECT_EQ(lines[0], "INSERT|users|1|Alice|25|1");
 }
 
+//Test 3: multiple inserts log correctly and commit only marks the last entry
 TEST_F(WALManagerTest, MultipleInsertsAndCommit) {
     WALManager wal(testWalFile);
     wal.logInsert("users", "1|Alice|25");
@@ -61,6 +64,8 @@ TEST_F(WALManagerTest, MultipleInsertsAndCommit) {
     EXPECT_EQ(lines[0], "INSERT|users|1|Alice|25|0");
     EXPECT_EQ(lines[1], "INSERT|users|2|Bob|30|1");
 }
+
+//Test 4: recover replays uncommitted WAL entries and inserts the rows into the table
 TEST_F(WALManagerTest, RecoverReplaysUncommitted) {
     {
         WALManager wal(testWalFile);
