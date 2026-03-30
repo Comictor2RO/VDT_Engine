@@ -81,7 +81,9 @@ void WALManager::recover(Engine &engine)
     {
         if (!e.committed && e.type == "INSERT")
         {
-            std::string sql = "INSERT INTO " + e.table + " VALUES (" + e.rowData + ")";
+            std::string csv = e.rowData;
+            for (char &c : csv) if (c == '|') c = ',';
+            std::string sql = "INSERT INTO " + e.table + " VALUES (" + csv + ")";
             Lexer lexer(sql);
             std::vector<Token> tokens = lexer.tokenize();
             Parser parser(tokens);

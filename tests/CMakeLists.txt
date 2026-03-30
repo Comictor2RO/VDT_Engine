@@ -28,11 +28,14 @@ add_executable(tests test_lexer.cpp
         ../AST/DropStatement/DropStatement.cpp
         ../AST/Columns/Columns.hpp
         ../Catalog/Catalog.cpp
+        ../WALManager/WALManager.cpp
+        ../Engine/Engine.cpp
         test_parser.cpp
         test_table.cpp
         test_catalog.cpp
         test_bplustree.cpp
-        test_cache.cpp)
+        test_cache.cpp
+        test_wal.cpp)
 
 target_include_directories(tests PRIVATE ../Frontend/Lexer)
 
