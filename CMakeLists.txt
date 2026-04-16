@@ -24,6 +24,10 @@ set(RAYLIB_DIR "C:/raylib/raylib/src")
 include_directories(${RAYLIB_DIR})
 link_directories(${RAYLIB_DIR})
 
+# Asio
+set(ASIO_DIR "C:/Program Files/JetBrains/CLion 2025.3.3/bin/mingw/asio-1.36.0/asio-1.36.0/include")
+include_directories(${ASIO_DIR})
+add_compile_definitions(ASIO_STANDALONE)
 # Include directories
 include_directories(VDT_Engine PRIVATE
         AST/Condition
@@ -97,8 +101,10 @@ add_executable(VDT_Engine
         AST/UpdateStatement/UpdateStatement.cpp
         AST/UpdateStatement/UpdateStatement.hpp
         GUI/Colors.hpp
+        Networking/NetworkServer.cpp
+        Networking/NetworkServer.hpp
 )
 
 # Link main app
-target_link_libraries(VDT_Engine PRIVATE raylib opengl32 gdi32 winmm)
+target_link_libraries(VDT_Engine PRIVATE raylib opengl32 gdi32 winmm ws2_32 wsock32)
 target_link_options(VDT_Engine PRIVATE -static-libgcc -static-libstdc++)
