@@ -48,6 +48,10 @@ void GUI::toggleServer()
             logs.push_back("[SERVER ERROR] " + std::string(e.what()));
             return;
         }
+        server.setLogCallback([this](const std::string& msg) {
+            std::lock_guard<std::mutex> lock(logsMutex);
+            logs.push_back(msg);
+        });
         logs.push_back("[SERVER] Started on port " + std::to_string(server.getPort()) + ".");
         serverRunning = true;
         serverThread = std::thread([this]() {

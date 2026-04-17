@@ -23,6 +23,11 @@ size_t NetworkServer::getPort() const
     return port;
 }
 
+void NetworkServer::setLogCallback(std::function<void(const std::string&)> callback)
+{
+    logCallback = callback;
+}
+
 void NetworkServer::stop()
 {
     acceptor.close();
@@ -55,13 +60,13 @@ void NetworkServer::acceptConnections()
     acceptor.async_accept(io_context, [this](asio::error_code ec, tcp::socket socket) {
         if (!ec) {
             handleClient(std::move(socket));
-            std::cout << "Client connected" << std::endl;
+            if (logCallback) logCallback("[SERVER] Client connected.");
         }
         else if (ec == asio::error::operation_aborted) {
             return;
         }
         else {
-            std::cerr << "Error accepting connection: " << ec.message() << std::endl;
+            if (logCallback) logCallback("[SERVER ERROR] " + ec.message());
         }
 
         acceptConnections();
@@ -79,15 +84,16 @@ void NetworkServer::handleClient(tcp::socket socket)
             std::istream is(buffer.get());
             std::string message;
             std::getline(is, message);
+            if (!message.empty() && message.back() == '\r')
+                message.pop_back();
 
             auto response = std::make_shared<std::string>(executeQuery(message));
-            asio::async_write(*sharedSocket, asio::buffer(*response), [sharedSocket, response](asio::error_code ec, std::size_t) {
-                if (ec)
-                    std::cerr << "Error sending response: " << ec.message() << std::endl;
+            asio::async_write(*sharedSocket, asio::buffer(*response), [this, sharedSocket, response](asio::error_code ec, std::size_t) {
+                if (ec && logCallback) logCallback("[SERVER ERROR] Send failed: " + ec.message());
             });
         }
         else {
-            std::cerr << "Error reading from client: " << ec.message() << std::endl;
+            if (logCallback) logCallback("[SERVER ERROR] Read failed: " + ec.message());
         }
     });
 }

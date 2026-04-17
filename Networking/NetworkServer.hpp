@@ -19,6 +19,7 @@
 #include <asio/ts/internet.hpp>
 #include <string>
 #include <mutex>
+#include <functional>
 
 class Engine;
 
@@ -32,6 +33,7 @@ class NetworkServer {
         void run();
         void stop();
         size_t getPort() const;
+        void setLogCallback(std::function<void(const std::string&)> callback);
 
     private:
         size_t port = 0;
@@ -39,6 +41,7 @@ class NetworkServer {
         tcp::acceptor acceptor;
         Engine &engine;
         std::mutex engineMutex;
+        std::function<void(const std::string&)> logCallback;
 
         void openServer();
         void acceptConnections();
