@@ -1,3 +1,4 @@
+#include "../Engine/Engine.hpp"
 #include "NetworkServer.hpp"
 #include <iostream>
 

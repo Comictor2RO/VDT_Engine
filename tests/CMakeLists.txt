@@ -30,20 +30,24 @@ add_executable(tests test_lexer.cpp
         ../Catalog/Catalog.cpp
         ../WALManager/WALManager.cpp
         ../Engine/Engine.cpp
+        ../Networking/NetworkServer.cpp
         test_parser.cpp
         test_table.cpp
         test_catalog.cpp
         test_bplustree.cpp
         test_cache.cpp
         test_wal.cpp
-        test_engine.cpp)
+        test_engine.cpp
+        test_network.cpp)
 
-target_include_directories(tests PRIVATE ../Frontend/Lexer)
+set(ASIO_DIR "C:/Program Files/JetBrains/CLion 2025.3.3/bin/mingw/asio-1.36.0/asio-1.36.0/include")
+target_include_directories(tests PRIVATE ../Frontend/Lexer ${ASIO_DIR})
+target_compile_definitions(tests PRIVATE ASIO_STANDALONE)
 
 # Link GTest și threading
 if(WIN32)
-    target_link_libraries(tests gtest gtest_main)
-    target_link_options(tests PRIVATE -static-libgcc -static-libstdc++)
+    target_link_libraries(tests gtest gtest_main ws2_32 wsock32)
+    target_link_options(tests PRIVATE -static-libgcc -static-libstdc++ -Wl,--allow-multiple-definition)
 else()
     target_link_libraries(tests gtest gtest_main pthread)
 endif()

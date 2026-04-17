@@ -2,11 +2,24 @@
 #define NETWORK_SERVER_HPP
 
 #include <iostream>
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#ifndef NOGDI
+#define NOGDI
+#endif
+#ifndef NOUSER
+#define NOUSER
+#endif
 #include <asio.hpp>
 #include <asio/ts/buffer.hpp>
 #include <asio/ts/internet.hpp>
 #include <string>
-#include "Engine.hpp"
+
+class Engine;
 
 using asio::ip::tcp;
 

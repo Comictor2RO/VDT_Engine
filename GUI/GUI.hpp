@@ -3,11 +3,13 @@
 
 #include <vector>
 #include <string>
+#include <thread>
 #include "raylib.h"
 #include "../AST/Row/Row.hpp"
 #include "../Catalog/Catalog.hpp"
 #include "../Engine/Engine.hpp"
 #include "Colors.hpp"
+#include "../Networking/NetworkServer.hpp"
 
 class GUI {
     public:
@@ -23,6 +25,9 @@ class GUI {
         bool isDark;
         Catalog &catalog;
         Engine &engine;
+        NetworkServer server;
+        std::thread serverThread;
+        bool serverRunning;
 
         Font regular;
         Font bold;
@@ -30,6 +35,7 @@ class GUI {
         Font semibold;
         void handleInput();
         void executeQuery();
+        void toggleServer();
         void drawInputPanel();
         void drawResultsPanel();
         void drawLogPanel();

@@ -3,7 +3,7 @@
 #include <algorithm>
 
 GUI::GUI(Catalog &catalog, Engine &engine)
-    : catalog(catalog), engine(engine), isDark(true), cursorPos(0), backspaceRepeatTimer(0)
+    : catalog(catalog), engine(engine), server(5432, engine), serverRunning(false), isDark(true), cursorPos(0), backspaceRepeatTimer(0)
 {}
 
 void GUI::run()
@@ -25,10 +25,33 @@ void GUI::run()
         drawLogPanel();
         EndDrawing();
     }
+    if (serverRunning)
+    {
+        server.stop();
+        serverThread.join();
+        serverRunning = false;
+    }
     UnloadFont(regular);
     UnloadFont(bold);
     UnloadFont(italic);
     CloseWindow();
+}
+
+void GUI::toggleServer()
+{
+    if (!serverRunning)
+    {
+        serverThread = std::thread([this]() { server.start(); });
+        serverRunning = true;
+        logs.push_back("[SERVER] Started on port 5432.");
+    }
+    else
+    {
+        server.stop();
+        serverThread.join();
+        serverRunning = false;
+        logs.push_back("[SERVER] Stopped.");
+    }
 }
 
 void GUI::handleInput()
@@ -209,6 +232,15 @@ void GUI::drawLogPanel()
     DrawRectangle(0, 520, 1280, 200, bg);
     DrawRectangle(0, 520, 1280, 30, header);
     DrawTextEx(bold, "LOG", Vector2{10, 524}, 22, 2, isDark ? HEADER_TEXT_DARK : HEADER_TEXT_LIGHT);
+
+    // Buton START/STOP server
+    Rectangle serverBtn = {1070, 524, 110, 23};
+    bool serverHover = CheckCollisionPointRec(GetMousePosition(), serverBtn);
+    Color serverBtnColor = serverRunning ? RED : GREEN;
+    DrawRectangleRec(serverBtn, ColorAlpha(serverBtnColor, serverHover ? 0.8f : 0.5f));
+    DrawTextEx(bold, serverRunning ? "STOP SERVER" : "START SERVER", Vector2{1075, 527}, 16, 1, WHITE);
+    if (serverHover && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        toggleServer();
 
     // Buton toggle dark/light mode
     Rectangle toggleBtn = {1190, 524, 80, 23};

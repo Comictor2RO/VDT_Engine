@@ -107,4 +107,4 @@ add_executable(VDT_Engine
 
 # Link main app
 target_link_libraries(VDT_Engine PRIVATE raylib opengl32 gdi32 winmm ws2_32 wsock32)
-target_link_options(VDT_Engine PRIVATE -static-libgcc -static-libstdc++)
+target_link_options(VDT_Engine PRIVATE -static-libgcc -static-libstdc++ -Wl,--allow-multiple-definition)
